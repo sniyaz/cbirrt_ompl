@@ -115,7 +115,7 @@ ompl::geometric::RRTConnect::GrowState ompl::geometric::RRTConnect::growTree(Tre
     /* find closest state in the tree */
     Motion *nmotion = tree->nearest(rmotion);
 
-    /* assume we can reach the state we go towards */
+    // NOTE: T-RO Fix. Always return REACHED.
     bool reach = true;
 
     /* find state to add */
@@ -146,16 +146,6 @@ ompl::geometric::RRTConnect::GrowState ompl::geometric::RRTConnect::growTree(Tre
             1 + si_->distance(nmotion->state, dstate) / si_->getStateValidityCheckingResolution();
         ompl::base::State *nstate = nmotion->state;
         si_->getMotionStates(nstate, dstate, states, count, true, true);
-
-        if (states.size() <= 1)
-            return TRAPPED;
-        // NOTE: (sniyaz) T-RO fix.
-        bool adv = true;
-        reach = reach && adv;
-
-        // // TODO: Submit as PR.
-        // if (!tgi.start)
-        //   std::reverse(states.begin(), states.end());
 
         si_->freeState(states[0]);
         for (std::size_t i = 1; i < states.size(); i++)
@@ -292,8 +282,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
 
             /* attempt to connect trees */
 
-            /* if reached, it means we used rstate directly, no need top copy again */
-            // NOTE (sniyaz): T-RO fix! Move towrds added state.
+            // NOTE (sniyaz): T-RO fix! Move towards added state.
             si_->copyState(rstate, tgi.xmotion->state);
 
             GrowState gsc = ADVANCED;
@@ -317,7 +306,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
             // NOTE: Most recent OMPL code has a bug where this check is needed.
             // I haven't seen in here, but adding this won't hurt :)
             // NOTE: (sniyaz): Ignore above comment. Needed for T-RO fix since
-            // now we either return TRAPPED or REACHED as the result of `growTree`.
+            // now we always return REACHED as the result of `growTree`.
             double connectionDistance = si_->distance(startMotion->state, goalMotion->state);
             if (gsc == REACHED && connectionDistance >= 2.0 * si_->getStateValidityCheckingResolution())
               gsc = ADVANCED;
