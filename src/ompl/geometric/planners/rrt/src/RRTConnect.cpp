@@ -147,6 +147,11 @@ ompl::geometric::RRTConnect::GrowState ompl::geometric::RRTConnect::growTree(Tre
         ompl::base::State *nstate = nmotion->state;
         si_->getMotionStates(nstate, dstate, states, count, true, true);
 
+        // NOTE: (sniyaz) T-RO fix.
+        bool adv = true;
+        reach = reach && adv;
+
+
         si_->freeState(states[0]);
         for (std::size_t i = 1; i < states.size(); i++)
         {
