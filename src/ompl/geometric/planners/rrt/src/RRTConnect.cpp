@@ -313,11 +313,11 @@ ompl::base::PlannerStatus ompl::geometric::RRTConnect::solve(const base::Planner
             // NOTE: (sniyaz): Ignore above comment. Needed for T-RO fix since
             // now we always return REACHED as the result of `growTree`.
             double connectionDistance = si_->distance(startMotion->state, goalMotion->state);
-            if (gsc == REACHED && connectionDistance >= 2.0 * si_->getStateValidityCheckingResolution())
+            if (gsc == REACHED && connectionDistance > 2.0 * si_->getStateValidityCheckingResolution())
               gsc = ADVANCED;
 
             /* if we connected the trees in a valid way (start and goal pair is valid)*/
-            if (gsc == REACHED && goal->isStartGoalPairValid(startMotion->root, goalMotion->root))
+            if (gsc == REACHED)
             {
                 // NOTE: I added this check!!!
                 if (si_->equalStates(startMotion->state, goalMotion->state))
